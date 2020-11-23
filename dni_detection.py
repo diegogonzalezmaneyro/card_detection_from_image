@@ -14,12 +14,17 @@ def dni_from_image(base64_image):
     # load image from base64
     pil_image = Image.open(BytesIO(base64.b64decode(base64_image)))
     img_orig = np.asarray(pil_image)
+    orig_HEIGHT, orig_WIDTH, _ = img_orig.shape
 
     # resize image and create a copy to handle
     WIDTH = 640
     HEIGHT = 400
     resized = cv2.resize(img_orig, (WIDTH,HEIGHT), interpolation=cv2.INTER_AREA )
     img = resized.copy()
+
+    # resize scale
+    W_scale = orig_WIDTH/WIDTH
+    H_scale = orig_HEIGHT/HEIGHT
     
     # define some vars
     scale = 1
@@ -120,7 +125,8 @@ def dni_from_image(base64_image):
     crop_x2 = int(aux[1].mean())
     
     ##################################################
-    crop = img[crop_y1:crop_y2, crop_x1:crop_x2,:]
+    # crop = img[crop_y1:crop_y2, crop_x1:crop_x2,:]
+    crop = img_orig[int(crop_y1*H_scale):int(crop_y2*H_scale),int(crop_x1*W_scale):int(crop_x2*W_scale),:]
     crop_image = Image.fromarray(crop)
     buffered = BytesIO()
     crop_image.save(buffered, format="png")
